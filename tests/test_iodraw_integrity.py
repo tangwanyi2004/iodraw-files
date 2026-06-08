@@ -36,6 +36,14 @@ def visible_text(cell):
     return html.unescape(value).strip()
 
 
+def point_y(edge, point_kind):
+    geometry = edge.find("mxGeometry")
+    for point in geometry.findall("mxPoint"):
+        if point.attrib.get("as") == point_kind:
+            return point.attrib["y"]
+    raise AssertionError(f"{edge.attrib.get('id')} has no {point_kind}")
+
+
 class IodrawIntegrityTest(unittest.TestCase):
     def test_all_files_parse_and_references_resolve(self):
         for path in IODRAW_FILES:
@@ -59,8 +67,8 @@ class IodrawIntegrityTest(unittest.TestCase):
 
         left_success = by_id["2C-E8wXzLExmKxaGtvue-99"]
         right_success = by_id["2C-E8wXzLExmKxaGtvue-108"]
-        self.assertEqual(left_success.find("mxGeometry").find("mxPoint").attrib["y"], "-9.939999999999145")
-        self.assertEqual(right_success.find("mxGeometry").find("mxPoint").attrib["y"], "389.06000000000085")
+        self.assertEqual(point_y(left_success, "targetPoint"), "-9.939999999999145")
+        self.assertEqual(point_y(right_success, "targetPoint"), "389.06000000000085")
 
         self.assertEqual(by_id["2C-E8wXzLExmKxaGtvue-120"].attrib["source"], "2C-E8wXzLExmKxaGtvue-101")
         self.assertEqual(by_id["2C-E8wXzLExmKxaGtvue-120"].attrib["target"], "2C-E8wXzLExmKxaGtvue-115")
