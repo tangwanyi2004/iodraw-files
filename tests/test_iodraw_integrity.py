@@ -28,10 +28,13 @@ class IodrawIntegrityTest(unittest.TestCase):
 
         for path in IODRAW_FILES:
             with self.subTest(path=path.name):
-                cells = cells_by_id(path)
+                root = ET.fromstring(path.read_text(encoding="utf-8"))
+                cell_list = root.findall(".//mxCell")
+                ids = [cell.get("id") for cell in cell_list if cell.get("id")]
+                cells = {cell.get("id"): cell for cell in cell_list if cell.get("id")}
                 self.assertEqual(
-                    len(cells),
-                    len(set(cells)),
+                    len(ids),
+                    len(set(ids)),
                     "mxCell IDs must be unique",
                 )
 
